@@ -13,7 +13,11 @@ $file = $opt_f;
 
 # This script assumes that each line contains a single number
 # If that's not the case, it refuses to continue. Please clean the data first
-open TMP, "<".$file || die "Can't open file".$file;
+if ($file =~ /.gz$/i) {
+    open TMP, "-|", "gzip -dc ".$file or die "gzip -dc failed for $file: $!";
+} else {
+    open TMP, "<".$file || die "Can't open file".$file;
+}
 $lines = 0;
 while(<TMP>) {
     $line = $_;
@@ -27,7 +31,11 @@ while(<TMP>) {
 close TMP;
 
 # Open the file sorted numerically
-open TMP, "sort -n ".$file." |" || die "Can't open file";
+if ($file =~ /.gz$/i) {
+    open TMP, "-|", "gzip -dc ".$file." | sort -n" or die "gzip -dc failed for $file: $!";
+} else {
+    open TMP, "sort -n ".$file." |" || die "Can't open file";
+}
 
 # We like to print the CDF as a step function
 # Given two consecutive points on the CDF (x1, y1) and (x2, y2)
